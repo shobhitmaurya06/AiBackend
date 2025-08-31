@@ -16,20 +16,6 @@ export const  getUserCreation=async(req,res)=>{
     }
 
 }
-export const  getPublishCreation=async(req,res)=>{
-    try{
-       const creations= await sql`SELECT * FROM creations WHERE publish=true ORDER BY created_at DESC`;
-       res.json({
-        success:true,
-        creations
-       })
-    }catch(error){
-        return res.json({
-            success:false,
-            message:error.message
-        })
-    }
-}
 export const  toggleLikeCreations=async(req,res)=>{
     try{
         const {userId}=req.auth();
@@ -65,4 +51,18 @@ export const  toggleLikeCreations=async(req,res)=>{
         })
     }
 
+}
+export const  getPublishCreation=async(req,res)=>{
+    try{
+       const creations= await sql`SELECT * FROM creations WHERE publish=true ORDER BY created_at DESC`;
+       res.json({
+        success:true,
+        creations
+       })
+    }catch(error){
+        return res.json({
+            success:false,
+            message:error.message
+        })
+    }
 }
