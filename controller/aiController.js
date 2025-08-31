@@ -160,4 +160,46 @@ export const generateImage = async (req, res) => {
     });
   }
 };
+export const removeImageBackground = async (req, res) => {
+  console.log("enter in the controller");
+  try {
+    const { userId } = req.auth();
+    const {image}=req.file;
+    const plan = req.plan;
+    // check plan
+    if (plan !== "premium") {
+      return res.json({
+        success: false,
+        message: "This feature is only available for premium subscriptions"
+      });
+    }
+    // prepare form data
+    
+    // upload to cloudinary
+    const { secure_url } = await cloudinary.uploader.upload(image.path,{
+      transformation:[
+        {
+          effect:'background-removal',
+          background_removal:'remove_the_background'
+
+        }
+      ]
+    })
+
+    // save to db
+    await sql`
+      INSERT INTO creations (user_id, prompt, content, type)
+      VALUES (${userId},"Remove background from image", ${secure_url}, 'image')
+    `;
+
+    return res.json({ success: true, content: secure_url });
+
+  } catch (error) {
+    console.error("Generate Image Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
