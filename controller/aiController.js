@@ -12,7 +12,7 @@ const AI = new OpenAI({
 });
 
 export const generateArticle = async (req, res) => {
-  console.log("enter in the controller");
+
 
   try {
     const { userId } = req.auth();  // ✅ fixed
@@ -40,7 +40,7 @@ export const generateArticle = async (req, res) => {
     const content = response.choices[0].message?.content || "No content generated";
 
     // Save to DB (✅ fixed table name)
-     console.log(content);
+   
     await sql`
       INSERT INTO creations (user_id, prompt, content, type)
       VALUES (${userId}, ${prompt}, ${content}, 'article')
@@ -56,7 +56,7 @@ export const generateArticle = async (req, res) => {
     return res.json({ success: true, content });
 
   } catch (error) {
-    console.error("Generate Article Error:", error.message);
+   
     return res.status(500).json({
       success: false,
       message: error.message
@@ -64,7 +64,6 @@ export const generateArticle = async (req, res) => {
   }
 };
 export const generateBlogTitle = async (req, res) => {
-  console.log("enter in the controller");
 
   try {
     const { userId } = req.auth(); 
@@ -86,7 +85,7 @@ export const generateBlogTitle = async (req, res) => {
 
     const content = response.choices[0].message?.content || "No content generated";
     // Save to DB 
-     console.log(content);
+   
     await sql`
       INSERT INTO creations (user_id, prompt, content, type)
       VALUES (${userId}, ${prompt}, ${content}, 'blog-title')
@@ -102,7 +101,7 @@ export const generateBlogTitle = async (req, res) => {
     return res.json({ success: true, content });
 
   } catch (error) {
-    console.error("Generate blog-title Error:", error.message);
+  
     return res.status(500).json({
       success: false,
       message: error.message
@@ -110,7 +109,6 @@ export const generateBlogTitle = async (req, res) => {
   }
 };
 export const generateImage = async (req, res) => {
-  console.log("enter in the controller");
   try {
     const { userId } = req.auth();
     const { prompt, publish } = req.body;
@@ -144,7 +142,7 @@ export const generateImage = async (req, res) => {
     const { secure_url } = await cloudinary.uploader.upload(base64Image, {
       folder: "creations", // optional: keep images organized
     });
-    console.log(secure_url);
+   
 
     // save to db
     await sql`
@@ -155,7 +153,6 @@ export const generateImage = async (req, res) => {
     return res.json({ success: true, content: secure_url });
 
   } catch (error) {
-    console.error("Generate Image Error:", error.message);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -163,10 +160,10 @@ export const generateImage = async (req, res) => {
   }
 };
 export const removeImageBackground = async (req, res) => {
-  console.log("enter in the controller");
+
   try {
     const { userId } = req.auth();
-    const {image}=req.file;
+    const image=req.file;
     const plan = req.plan;
     // check plan
     if (plan !== "premium") {
@@ -176,28 +173,29 @@ export const removeImageBackground = async (req, res) => {
       });
     }
     // prepare form data
-    
+  
     // upload to cloudinary
-    const { secure_url } = await cloudinary.uploader.upload(image.path,{
-      transformation:[
-        {
-          effect:'background-removal',
-          background_removal:'remove_the_background'
+    // const { secure_url } = await cloudinary.uploader.upload(image.path,{
+    //   transformation:[
+    //     {
+    //       effect:'background-removal',
+    //       background_removal:'remove_the_background'
 
-        }
-      ]
-    })
+    //     }
+    //   ]
+    // })
+    const { secure_url } = await cloudinary.uploader.upload(image.path, {
+  background_removal: "cloudinary_ai" // or "remove_the_background" if enabled on your account
+});
+
 
     // save to db
     await sql`
       INSERT INTO creations (user_id, prompt, content, type)
-      VALUES (${userId},"Remove background from image", ${secure_url}, 'image')
+      VALUES (${userId},'Remove background from image', ${secure_url}, 'image')
     `;
-
     return res.json({ success: true, content: secure_url });
-
   } catch (error) {
-    console.error("Generate Image Error:", error.message);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -205,7 +203,6 @@ export const removeImageBackground = async (req, res) => {
   }
 };
 export const removeImageObject = async (req, res) => {
-  console.log("enter in the controller");
   try {
     const { userId } = req.auth();
     const {object}=req.body;
@@ -233,7 +230,6 @@ export const removeImageObject = async (req, res) => {
     `;
     return res.json({ success: true, content:imageURl});
   } catch (error) {
-    console.error("Generate Image Error:", error.message);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -241,7 +237,6 @@ export const removeImageObject = async (req, res) => {
   }
 };
 export const resumeReview = async (req, res) => {
-  console.log("enter in the controller");
   try {
     const { userId } = req.auth();
     const resume=req.file;
@@ -262,7 +257,7 @@ export const resumeReview = async (req, res) => {
     }
     const dataBuffer=fs.readFileSync(resume.path);
     const pdfData=await pdf(dataBuffer);
-    const prompt=`Review the following resume and provide constructive feedback on its strengths ,weakness, and areas for improvement  and calculate ATS score. Resume content:\n\n${pdfData.text}`;
+    const prompt=`Review the following resume and provide constructive feedback on its strengths ,weakness, and areas for improvement  and calculate ATS score.show the overall ATS score in the last. Resume content:\n\n${pdfData.text}`;
      const response = await AI.chat.completions.create({
       model: "gemini-2.0-flash",
       messages: [{ role: "user", content: prompt }],
@@ -277,7 +272,6 @@ export const resumeReview = async (req, res) => {
     `;
     return res.json({ success: true, content:content});
   } catch (error) {
-    console.error("Generate Image Error:", error.message);
     return res.status(500).json({
       success: false,
       message: error.message,

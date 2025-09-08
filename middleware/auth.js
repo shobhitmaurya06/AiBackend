@@ -1,7 +1,6 @@
 import { clerkClient } from "@clerk/express";
 
 export const auth = async (req, res, next) => {
-  console.log("auth");
   try {
     const { userId } = req.auth(); // Clerk attaches this
 
