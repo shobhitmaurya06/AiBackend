@@ -22,7 +22,7 @@ export const generateArticle = async (req, res) => {
     const free_usage = req.free_usage;
 
     // Rate-limit free users
-    if (plan !== "premium" && free_usage >= 10) {
+    if (plan !== "premium" && free_usage >= 20) {
       return res.json({
         success: false,
         message: "Limit reached. Upgrade to continue."
@@ -70,7 +70,7 @@ export const generateBlogTitle = async (req, res) => {
     const { prompt} = req.body;
     const plan = req.plan;
     const free_usage = req.free_usage;
-    if (plan !== "premium" && free_usage >= 10) {
+    if (plan !== "premium" && free_usage >= 20) {
       return res.json({
         success: false,
         message: "Limit reached. Upgrade to continue."
@@ -91,13 +91,13 @@ export const generateBlogTitle = async (req, res) => {
       VALUES (${userId}, ${prompt}, ${content}, 'blog-title')
     `;
     // Update free usage count for non-premium users
-    if (plan !== "premium") {
-      await clerkClient.users.updateUserMetadata(userId, {
-        privateMetadata: {
-          free_usage: free_usage + 1
-        }
-      });
-    }
+    // if (plan !== "premium") {
+    //   await clerkClient.users.updateUserMetadata(userId, {
+    //     privateMetadata: {
+    //       free_usage: free_usage + 1
+    //     }
+    //   });
+    // }
     return res.json({ success: true, content });
 
   } catch (error) {
@@ -114,12 +114,12 @@ export const generateImage = async (req, res) => {
     const { prompt, publish } = req.body;
     const plan = req.plan;
     // check plan
-    if (plan !== "premium") {
-      return res.json({
-        success: false,
-        message: "This feature is only available for premium subscriptions"
-      });
-    }
+    // if (plan !== "premium") {
+    //   return res.json({
+    //     success: false,
+    //     message: "This feature is only available for premium subscriptions"
+    //   });
+    // }
     // prepare form data
     const formData = new FormData();
     formData.append("prompt", prompt);
@@ -166,12 +166,12 @@ export const removeImageBackground = async (req, res) => {
     const image=req.file;
     const plan = req.plan;
     // check plan
-    if (plan !== "premium") {
-      return res.json({
-        success: false,
-        message: "This feature is only available for premium subscriptions"
-      });
-    }
+    // if (plan !== "premium") {
+    //   return res.json({
+    //     success: false,
+    //     message: "This feature is only available for premium subscriptions"
+    //   });
+    // }
     // prepare form data
   
     // upload to cloudinary
@@ -209,12 +209,12 @@ export const removeImageObject = async (req, res) => {
     const {image}=req.file;
     const plan = req.plan;
     // check plan
-    if (plan !== "premium") {
-      return res.json({
-        success: false,
-        message: "This feature is only available for premium subscriptions"
-      });
-    }
+    // if (plan !== "premium") {
+    //   return res.json({
+    //     success: false,
+    //     message: "This feature is only available for premium subscriptions"
+    //   });
+    // }
     
     // upload to cloudinary
     const {public_id} = await cloudinary.uploader.upload(image.path);
@@ -242,12 +242,12 @@ export const resumeReview = async (req, res) => {
     const resume=req.file;
     const plan = req.plan;
     // check plan
-    if (plan !== "premium") {
-      return res.json({
-        success: false,
-        message: "This feature is only available for premium subscriptions"
-      });
-    }
+    // if (plan !== "premium") {
+    //   return res.json({
+    //     success: false,
+    //     message: "This feature is only available for premium subscriptions"
+    //   });
+    // }
     //check file size
     if(resume.size>10*1024*1024){
       return res.json({
